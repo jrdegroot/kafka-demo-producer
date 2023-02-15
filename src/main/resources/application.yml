@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: producer-application
+
+  kafka:
+    bootstrap-servers: http://localhost:29092,http://localhost:29093,http://localhost:29094
+    security:
+      protocol: PLAINTEXT
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      client-id: ${spring.application.name}
+      properties:
+        spring.json.type.mapping: "User:com.example.kafkademoproducer.model.User"
+
+    properties:
+      schema.registry.url: http://localhost:8081
+
+kafka:
+  producer:
+    enabled: true
+    rate: 1000
+
+
+# Open up all Spring Boot Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always
+
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      env: local
