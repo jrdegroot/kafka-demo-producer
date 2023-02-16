@@ -26,13 +26,14 @@ public class MessageProducer {
     private final KafkaTemplate<String, User> kafkaTemplate;
     private final Faker faker = new Faker();
 
-    public void sendUser(User user) {
-        kafkaTemplate.send(DEMO_TOPIC, user.getId(), user);
+    public void sendUser(String key, User user) {
+        kafkaTemplate.send(DEMO_TOPIC, key, user);
     }
 
     @Scheduled(fixedRateString = "${kafka.producer.rate}")
     public void produce() {
 
+        String key = String.valueOf(new Random().nextInt(2));
         User user = User.builder()
                 .id(UUID.randomUUID().toString())
                 .firstName(faker.name().firstName())
@@ -40,9 +41,9 @@ public class MessageProducer {
                 .location(Location.randomLocation())
                 .build();
 
-        String partition = String.valueOf(Utils.toPositive(Utils.murmur2(user.getId().getBytes())) % 12);
-        log.info("Partition: {}, Key: {}, User: {}", partition, user.getId(), user);
-        sendUser(user);
+        String partition = String.valueOf(Utils.toPositive(Utils.murmur2(key.getBytes())) % 12);
+        log.info("Partition: {}, Key: {}, User: {}", partition, key, user);
+        sendUser(key, user);
     }
 
 }
